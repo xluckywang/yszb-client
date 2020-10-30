@@ -1,0 +1,22 @@
+.form-bar{
+  margin:10px;
+  padding: 20px 20px 0 20px;
+  border-radius:5px;
+  height:auto;
+  background-color:white;
+}
+h3{
+  margin: 0;
+}
+.el-row{
+  padding: 0 20px 20px;
+}
+
+.el-table .warning-row {
+  background: oldlace;
+}
+
+.el-table .error-row {
+  background: #ffdfdf;
+}
+
