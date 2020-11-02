@@ -30,15 +30,15 @@
     </el-row>
     <!-- 添加设备类型弹窗 -->
     <el-dialog title="提示" :visible.sync="addTypedialogVisible" width="30%">
-      <el-form ref="addDevform" :model="addTypeform" :rules="rules">
+      <el-form ref="addTypeform" :model="addTypeform" :rules="rules">
         <el-form-item label="类型名称" prop="sblxName" label-width="100px">
           <el-input v-model="addTypeform.sblxName" placeholder="请输入类型名称"></el-input>
         </el-form-item>
         <el-form-item label="类型编号" prop="sblxId" label-width="100px">
           <el-input v-model="addTypeform.sblxId" placeholder="请输入设备类型编号"></el-input>
         </el-form-item>
-        <el-form-item label="缩写" prop="sblxsx" label-width="100px">
-          <el-input v-model="addTypeform.sblxsx" placeholder="请输入设备类型编号缩写"></el-input>
+        <el-form-item label="缩写" prop="sblxAbbreviation" label-width="100px">
+          <el-input v-model="addTypeform.sblxAbbreviation" placeholder="请输入设备类型编号缩写"></el-input>
         </el-form-item>
         <el-form-item label="备注" prop="remarkName" label-width="100px">
           <el-input v-model="addTypeform.remarkName" placeholder="请输入设备厂商"></el-input>
@@ -60,7 +60,7 @@
 </template>
 <script>
 
-import { getTypeList } from '@/api/DeviceManage/DeviceType'
+import { getTypeList,addSblx } from '@/api/DeviceManage/DeviceType'
 
 export default {
   name: '',
@@ -69,16 +69,16 @@ export default {
       isShow: true,
       addTypedialogVisible: false,
       TypeList: [
-        {
-          sblxId: 'xxxx',
-          sblxName: '设备类型名称',
-          pictureUrl: ''
-        }
+        // {
+        //   sblxId: 'xxxx',
+        //   sblxName: '设备类型名称',
+        //   pictureUrl: ''
+        // }
       ],
       addTypeform: {
         sblxName: '',
         sblxId: '',
-        sblxsx: '',
+        sblxAbbreviation: '',
         remarkName: ''
       },
       rules: {
@@ -88,7 +88,7 @@ export default {
         sblxId: [
           { required: true, message: '请输入设备类型编号', trigger: 'blur' }
         ],
-        sblxsx: [
+        sblxAbbreviation: [
           { required: true, message: '请输入设备类型编号缩写', trigger: 'blur' }
         ],
         remarkName: [
@@ -116,8 +116,18 @@ export default {
     },
 
     addTypeSubmit () {
-
+      addSblx(this.addTypeform).then(()=>{
+        // console.log(res)
+        this.$message.success({
+          message: '添加设备类型成功!',
+          position: 'top',
+          time: 2000
+        }).catch(err=>{
+          console.log(err);
+        })
+      })
       this.addTypedialogVisible = false;
+      this.init();
     },
   }
 }

@@ -5,5 +5,9 @@ import interval from "../../../fetch";
 // }
 
 export const getTypeList = (params) => {
-  return interval.get('sblx/list',params).then(res=>res);
+  return interval.get("sblx/list", params).then((res) => res);
+};
+
+export const addSblx = (params) => {
+  return interval.post("sblx/addSblx", params).then((res) => res);
 };
