@@ -161,7 +161,7 @@ export default {
       console.log(index, row);
     },
     handleDelete (index, row) {
-      console.log(index, row.userPhone);
+      // console.log(index, row.userPhone);
       deleteUserbyPhone(row.userPhone).then(() => {
         this.$message.error({
           message: 'res.data.data',

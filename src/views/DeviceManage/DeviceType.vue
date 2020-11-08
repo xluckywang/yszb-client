@@ -18,16 +18,8 @@
           </el-card>
         </router-link>
       </el-col>
-      <!-- <el-col :span="5">
-        <el-card>
-          <div class="add">
-            <a href="javascript:void(0);" @click="addTypedialogVisible = true">
-              <i class="el-icon-plus"></i>
-            </a>
-          </div>
-        </el-card>
-      </el-col> -->
     </el-row>
+    
     <!-- 添加设备类型弹窗 -->
     <el-dialog title="提示" :visible.sync="addTypedialogVisible" width="30%">
       <el-form ref="addTypeform" :model="addTypeform" :rules="rules">

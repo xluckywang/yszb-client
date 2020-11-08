@@ -59,8 +59,11 @@ export default {
       this.$refs[formName].validate((valid) => {
         if (valid) {
           //api       
-          reset(this.form.username, this.form.Email).then(res => {
-            // console.log(res.data)
+          reset({
+            userPhone:this.form.username,
+            userEmail:this.form.Email 
+          }).then(res => {
+            console.log(res.data)
             if (res.data.code == 'SUCCESS') {
               this.$router.push('/login');
               this.$message.success({

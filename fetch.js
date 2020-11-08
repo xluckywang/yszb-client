@@ -39,7 +39,8 @@ interval.interceptors.request.use(
       config.headers["Content-Type"] = "application/json;charset=UTF-8";
       config.headers["x-requested-with"] = "XMLHttpRequest";
       config.headers["Authorization"] =
-        "Bearer " + window.localStorage.getItem("access_token");
+        // "Bearer " + 
+        window.localStorage.getItem("access_token");
     }
     return config;
   },

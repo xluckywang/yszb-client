@@ -18,11 +18,17 @@ export default {
   data () {
     return {
       userInfo: {
-        name: '管理员'
+        name: ''
       }
     }
   },
+  mounted(){
+    this.init();
+  },
   methods:{
+    init(){
+      this.userInfo.name = localStorage.getItem('userrole');
+    },
     handleCommand (command) {
       window.localStorage.removeItem('access_token');
       this.$router.push({name:'login'});

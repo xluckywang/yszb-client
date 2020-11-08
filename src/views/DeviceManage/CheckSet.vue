@@ -13,31 +13,17 @@
         </el-col>
         <el-col :span="10" style="text-align : right;">
           <!-- <el-button type="primary" size="small" @click="defaultSet()">恢复默认</el-button> -->
-          <el-button type="primary" size="small" @click="saveDialogVisible=true,gridData = multipleSelection">保存</el-button>
+          <el-button type="primary" size="small" @click="saveSet">保存</el-button>
           <el-button type="primary" size="small" @click="$router.go(-1)">取消</el-button>
         </el-col>
       </el-row>
     </div>
 
-    <!-- 保存确认弹窗 -->
-    <el-dialog title="已选择点检方案" :visible.sync="saveDialogVisible">
-      <el-table :data="gridData">
-        <el-table-column prop="djxmId" label="点检项目编号" width="120"></el-table-column>
-        <el-table-column prop="djlxId" label="点检类型" width="120"></el-table-column>
-        <el-table-column prop="djxmName" label="点检项目" width="300"></el-table-column>
-        <el-table-column prop="djxmDetail" label="点检项目内容"></el-table-column>
-      </el-table>
-      <div slot="footer" class="dialog-footer">
-        <el-button @click="saveDialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="saveSet">确 定</el-button>
-      </div>
-    </el-dialog>
-
     <!-- 点检类型表格 -->
     <el-row :gutter="20">
       <el-col :span="6">
         <div class="container">
-          <el-button type="primary" size="small" @click="handleSetDialog('d')">设置日点检计划</el-button>
+          <el-button type="primary" size="small" @click="handleSetDialog('D')">设置日点检计划</el-button>
           <el-table :data="dList" style="width: 100%" height="600">
             <el-table-column type="index" label="序号"></el-table-column>
             <el-table-column prop="djxmName" label="项目名称" min-width="100"></el-table-column>
@@ -46,7 +32,7 @@
       </el-col>
       <el-col :span="6">
         <div class="container">
-          <el-button type="primary" size="small" @click="handleSetDialog('w')">设置周点检计划</el-button>
+          <el-button type="primary" size="small" @click="handleSetDialog('W')">设置周点检计划</el-button>
           <el-table :data="wList" style="width: 100%" height="600">
             <el-table-column type="index" label="序号"></el-table-column>
             <el-table-column prop="djxmName" label="项目名称" min-width="100"></el-table-column>
@@ -55,7 +41,7 @@
       </el-col>
       <el-col :span="6">
         <div class="container">
-          <el-button type="primary" size="small" @click="handleSetDialog('m')">设置月点检计划</el-button>
+          <el-button type="primary" size="small" @click="handleSetDialog('M')">设置月点检计划</el-button>
           <el-table :data="mList" style="width: 100%" height="600">
             <el-table-column type="index" label="序号"></el-table-column>
             <el-table-column prop="djxmName" label="项目名称" min-width="100"></el-table-column>
@@ -64,7 +50,7 @@
       </el-col>
       <el-col :span="6">
         <div class="container">
-          <el-button type="primary" size="small" @click="handleSetDialog('y')">设置年点检计划</el-button>
+          <el-button type="primary" size="small" @click="handleSetDialog('Y')">设置年点检计划</el-button>
           <el-table :data="yList" style="width: 100%" height="600">
             <el-table-column type="index" label="序号"></el-table-column>
             <el-table-column prop="djxmName" label="项目名称" min-width="100"></el-table-column>
@@ -81,7 +67,7 @@
         <el-table-column prop="djxmContent" label="项目内容"></el-table-column>
       </el-table>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="setDialogVisible = false">取 消</el-button>
+        <el-button @click="setDialogVisible = false;djxmList = JSON.parse(JSON.stringify(list));">取 消</el-button>
         <el-button type="primary" @click="setConfirm">确 定</el-button>
       </div>
     </el-dialog>
@@ -89,22 +75,21 @@
 </template>
 
 <script>
-import { addDjfa } from '@/api/DeviceManage/CheckSet';
+import { addSbDjxm, getSbDjxmBySbId, getSbDjxmById } from '@/api/DeviceManage/CheckSet';
 import { getDjxmList } from '@/api/DeviceManage/CheckManage';
 
 export default {
   data () {
     return {
-      gridData: [],
-      multipleSelection: [],
-      saveDialogVisible: false,
-
-
       dList: [],
       wList: [],
       mList: [],
       yList: [],
+      period: '',
       djxmList: [],
+      list: [],
+      djfaList: [],
+      multipleSelection: [],
       setDialogVisible: false,
     };
   },
@@ -114,74 +99,120 @@ export default {
   mounted () {
 
   },
-  updated () {
-    switch (this.period) {
-      case 'd':
-        this.toggleSelection(this.dList); break;
-      case 'w':
-        this.toggleSelection(this.wList); break;
-      case 'm':
-        this.toggleSelection(this.mList); break;
-      case 'y':
-        this.toggleSelection(this.yList); break;
-      default:
-        this.toggleSelection(); break;
-    }
-  },
   methods: {
     init () {
-      getDjxmList('').then(res => {
-        // console.log(res.data.data);
-        this.tableData = res.data.data;
-      }).catch(err => {
-        // console.log(err)
-        this.$message.error({
-          message: err,
-          position: 'top',
-          time: 2000
-        })
-      });
       getDjxmList().then(res => {
-        // console.log(res.data.data);
         this.djxmList = res.data.data;
+        this.list = JSON.parse(JSON.stringify(this.djxmList));
+      });
+      getSbDjxmBySbId(this.$router.history.current.params.id).then(res => {
+        for (let i = 0; i < res.data.data.length; i++) {
+          switch (res.data.data[i].period) {
+            case 'D':
+              getSbDjxmById(res.data.data[i].djxmId).then(res => {
+                this.dList.unshift(res.data.data);
+              })
+              break;
+            case 'W':
+              getSbDjxmById(res.data.data[i].djxmId).then(res => {
+                this.wList.unshift(res.data.data);
+              })
+              break;
+            case 'M':
+              getSbDjxmById(res.data.data[i].djxmId).then(res => {
+                this.mList.unshift(res.data.data);
+              })
+              break;
+            case 'Y':
+              getSbDjxmById(res.data.data[i].djxmId).then(res => {
+                this.yList.unshift(res.data.data);
+              })
+              break;
+          }
+        };
       });
     },
     handleSetDialog (period) {
-      this.setDialogVisible = true;
+
       this.period = period;
+      this.setDialogVisible = true;
+      if (period == 'D') {
+        for (let i = 0; i < this.djxmList.length; i++) {
+          for (let j = 0; j < this.dList.length; j++) {
+            if (this.djxmList[i].djxmId == this.dList[j].djxmId) {
+              this.djxmList[i].selected = 1;
+            }
+          }
+        };
+      }
+      if (period == 'W') {
+        for (let i = 0; i < this.djxmList.length; i++) {
+          for (let j = 0; j < this.wList.length; j++) {
+            if (this.djxmList[i].djxmId == this.wList[j].djxmId) {
+              this.djxmList[i].selected = 1;
+            }
+          }
+        };
+      }
+      if (period == 'M') {
+        for (let i = 0; i < this.djxmList.length; i++) {
+          for (let j = 0; j < this.mList.length; j++) {
+            if (this.djxmList[i].djxmId == this.mList[j].djxmId) {
+              this.djxmList[i].selected = 1;
+            }
+          }
+        };
+      }
+      if (period == 'Y') {
+        for (let i = 0; i < this.djxmList.length; i++) {
+          for (let j = 0; j < this.yList.length; j++) {
+            if (this.djxmList[i].djxmId == this.yList[j].djxmId) {
+              this.djxmList[i].selected = 1;
+            }
+          }
+        };
+      }
+      this.toggleSelection(this.djxmList);
     },
     setConfirm () {
+      this.djxmList = JSON.parse(JSON.stringify(this.list));
       this.setDialogVisible = false;
       switch (this.period) {
-        case 'd':
+        case 'D':
           this.dList = this.multipleSelection; break;
-        case 'w':
+        case 'W':
           this.wList = this.multipleSelection; break;
-        case 'm':
+        case 'M':
           this.mList = this.multipleSelection; break;
-        case 'y':
+        case 'Y':
           this.yList = this.multipleSelection; break;
       }
-      console.log(this.dList);
+
+      // console.log(this.);
     },
     // 保存
     saveSet () {
-      this.format(this.gridData)
-      this.handleAdd(this.gridData);
-      // this.$router.go(-1);
-    },
+      this.format(this.dList, "D");
+      this.format(this.wList, "W");
+      this.format(this.mList, "M");
+      this.format(this.yList, "Y");
 
-    // 添加点检方案请求数据整理
-    format (ary) {
-      for (let i = 0; i < ary.length; i++) {
-        ary[i].sbxxId = this.$router.history.current.params.id;
+      this.handleAdd(this.djfaList);
+      this.$router.go(-1);
+    },
+    format (list, period) {
+      for (let i = 0; i < list.length; i++) {
+        this.djfaList.unshift({
+          sbxxId: this.$router.history.current.params.id,
+          djxmId: list[i].djxmId,
+          period: period
+        })
       }
-      return ary
     },
 
     // 添加点检方案
     handleAdd (msg) {
-      addDjfa(msg).then(res => {
+      addSbDjxm(msg).then(res => {
         this.$message.success({
           message: res.data.data,
           position: 'top',
@@ -197,17 +228,17 @@ export default {
     },
     // 选择
     toggleSelection (rows) {
-      if (rows) {
-        rows.forEach(row => {
-          this.$refs.multipleTable.toggleRowSelection(row);
-        });
+      if (rows.length) {
+        this.$nextTick(function () {
+          rows.forEach(row => {
+            if (row.selected == 1) {
+              this.$refs.multipleTable.toggleRowSelection(row, true);
+            }
+          })
+        })
       }
-      // else {
-      //   this.$refs.multipleTable.clearSelection();
-      // }
     },
     handleSelectionChange (val) {
-      // console.log(val)
       this.multipleSelection = val;
     }
   }

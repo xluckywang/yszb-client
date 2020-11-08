@@ -45,6 +45,7 @@
 </template>
 <script>
 import { login } from '@/api/login/login';
+import { getUserInfo } from '@/api/Overview/overview';
 
 export default {
   name: '',
@@ -81,11 +82,15 @@ export default {
 
           //登录请求
           login(userList).then(res => {
-            // console.log(res);
             if (res.status == '200') {
+              // console.log(res.data);
               if (res.data.data) {
-                localStorage.setItem('access_token', res.data.data.token); // 测试解决上线第一次请求不带token问题
+                localStorage.setItem('access_token', res.data.data); // 测试解决上线第一次请求不带token问题
                 localStorage.setItem('username', this.form.username);
+                getUserInfo(this.form.username).then(res => {
+                  // console.log(res.data.data);
+                  localStorage.setItem('userrole', res.data.data.permissionType);
+                })
                 this.$message.success({
                   message: '登录成功',
                   position: 'top',
@@ -106,10 +111,10 @@ export default {
           })
             .catch(err => {
               this.$message.error({
-                  message: err,
-                  position: 'top',
-                  time: 2000
-                })
+                message: err,
+                position: 'top',
+                time: 2000
+              })
               this.loading = false
             })
         } else {

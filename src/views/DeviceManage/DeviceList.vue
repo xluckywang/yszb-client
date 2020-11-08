@@ -172,7 +172,7 @@ export default {
     Pagination
   },
   created () {
-    this.init()
+    this.init();
   },
   mounted () {
 

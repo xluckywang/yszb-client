@@ -8,10 +8,8 @@ export const register = (params) => {
   return interval.post("user/register", params).then((res) => res);
 };
 
-export const reset = (username, Email) => {
-  return interval
-    .get("user/resetPwd/" + username + "/" + Email)
-    .then((res) => res);
+export const reset = (params) => {
+  return interval.post("user/resetPwd", params).then((res) => res);
 };
 
 export const getAllCompany = () => {
