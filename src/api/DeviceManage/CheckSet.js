@@ -15,3 +15,7 @@ export const getSbDjxmBySbId = (params) => {
 export const getSbDjxmById = (params) => {
   return interval.get("djxm-modify/getSbDjxmById/" + params).then((res) => res);
 };
+
+export const addDjfa = (params) => {
+  return interval.post("djfa/addDjfa", params).then((res) => res);
+};

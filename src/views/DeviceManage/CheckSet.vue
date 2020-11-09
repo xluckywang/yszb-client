@@ -75,7 +75,7 @@
 </template>
 
 <script>
-import { addSbDjxm, getSbDjxmBySbId, getSbDjxmById } from '@/api/DeviceManage/CheckSet';
+import { addSbDjxm, getSbDjxmBySbId, getSbDjxmById,addDjfa } from '@/api/DeviceManage/CheckSet';
 import { getDjxmList } from '@/api/DeviceManage/CheckManage';
 
 export default {
@@ -89,6 +89,7 @@ export default {
       djxmList: [],
       list: [],
       djfaList: [],
+      djfa:[],
       multipleSelection: [],
       setDialogVisible: false,
     };
@@ -197,8 +198,11 @@ export default {
       this.format(this.mList, "M");
       this.format(this.yList, "Y");
 
-      this.handleAdd(this.djfaList);
+      this.handleAdd(this.djfaList,this.djfa);
+      // console.log(this.djfa);
       this.$router.go(-1);
+
+      
     },
     format (list, period) {
       for (let i = 0; i < list.length; i++) {
@@ -207,12 +211,19 @@ export default {
           djxmId: list[i].djxmId,
           period: period
         })
+        this.djfa.unshift({
+          sbxxId:this.$router.history.current.params.id,
+          djlxId:period,
+          djxmDetail:list[i].djxmContent,
+          djxmName:list[i].djxmName
+        })
       }
     },
 
     // 添加点检方案
-    handleAdd (msg) {
+    handleAdd (msg,djfa) {
       addSbDjxm(msg).then(res => {
+        // console.log(msg);
         this.$message.success({
           message: res.data.data,
           position: 'top',
@@ -224,6 +235,9 @@ export default {
           position: 'top',
           time: 2000
         })
+      });
+      addDjfa(djfa).then(()=>{
+        // console.log(res);
       })
     },
     // 选择
