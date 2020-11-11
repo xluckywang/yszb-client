@@ -21,10 +21,6 @@
             <el-option v-for="item in checkOptions" :key="item.value" :label="item.label" :value="item.value"></el-option>
           </el-select>
         </el-form-item>
-        <!-- <el-form-item>
-          <el-cascader v-model="formInline.check" :options="checkOptions" :props="props" style="width:255px" collapse-tags clearable
-            placeholder="请选择点检周期"></el-cascader>
-        </el-form-item> -->
         <el-form-item>
           <el-select v-model="formInline.completeValue" style="width:150px" clearable placeholder="请选择完成情况">
             <el-option v-for="item in complete" :key="item.value" :label="item.label" :value="item.value">
@@ -41,24 +37,26 @@
     </div>
     <!-- 设备点检列表 -->
     <div class="container">
-      <el-table ref="multipleTable" :data="tableData" tooltip-effect="dark" style="width: 100%" @selection-change="handleSelectionChange">
+      <el-table ref="multipleTable" :data="tableData.slice((pageData.currentPage-1)*pageData.pageSize,pageData.currentPage*pageData.pageSize)"
+        tooltip-effect="dark" style="width: 100%;height:550px;overflow:scroll;" @selection-change="handleSelectionChange">
         <el-table-column type="selection" :selectable="isDisabled" min-width="55"></el-table-column>
         <el-table-column type="expand" min-width="55">
           <template slot-scope="props">
-            <el-tabel :data="props">
-              <el-table-column prop="" label="项目名称"></el-table-column>
-              <el-table-column prop="" label="项目内容"></el-table-column>
-            </el-tabel>
+            <el-form label-position="left" class="demo-table-expand">
+              <el-form-item :label="item.split(':')[0]" v-for="item in props.row.djxmDetail" :key="item.djfaIdList">
+                <span>{{item.split(":")[1]}}</span>
+              </el-form-item>
+            </el-form>
           </template>
         </el-table-column>
-        <el-table-column prop="sbxxId" label="设备名称" min-width="120"></el-table-column>
-        <el-table-column prop="sbxxCode" label="设备编号" min-width="140"></el-table-column>
-        <el-table-column prop="sbxxName" label="设备类型" width="180"></el-table-column>
-        <el-table-column prop="djxmType" label="点检周期" width="100"></el-table-column>
-        <el-table-column prop="isFinished" label="是否完成" width="120"></el-table-column>
-        <el-table-column prop="isOutdated" label="是否超期" width="120"></el-table-column>
-        <el-table-column prop="finishedTime" label="完成时间" width="220"></el-table-column>
-        <el-table-column prop="djfaOperator" label="操作人员" show-overflow-tooltip></el-table-column>
+        <el-table-column prop="sbxxId" label="设备名称"></el-table-column>
+        <el-table-column prop="sbxxCode" label="设备编号"></el-table-column>
+        <el-table-column prop="sbxxName" label="设备类型"></el-table-column>
+        <el-table-column prop="djlxType" label="点检周期"></el-table-column>
+        <el-table-column prop="finished" label="是否完成"></el-table-column>
+        <el-table-column prop="isOutdated" label="是否超期"></el-table-column>
+        <el-table-column prop="finishedTime" label="完成时间"></el-table-column>
+        <el-table-column prop="djfaOperator" label="操作人员"></el-table-column>
       </el-table>
       <!-- 分页  -->
       <Pagination :pageData="pageData" @handleCurrentChange="handleCurrentChange" />
@@ -68,7 +66,7 @@
 
 <script>
 import { getDevList } from '@/api/DeviceManage/DeviceList';
-import { getDjfa, commitDjfa,getSbDjxByType } from '@/api/DeviceCheck/DeviceCheck';
+import { getDjfa, commitDjfa } from '@/api/DeviceCheck/DeviceCheck';
 // import {  } from '@/api/DeviceManage/CheckSet';
 
 //组件
@@ -139,7 +137,6 @@ export default {
       ],
       //完成情况选项
       complete: [
-
         { value: '已完成', label: '已完成' },
         { value: '未完成', label: '未完成' },
       ],
@@ -187,31 +184,23 @@ export default {
           time: 2000
         })
       })
+      // console.log(this.djrzFormat())
       this.getDjrz(
         this.djrzFormat()
       );
-      // console.log(this.tableData);
 
     },
 
     // 获取点检日志列表
     getDjrz (obj) {
       getDjfa(obj).then(res => {
-        // console.log(obj);
-        // console.log(res.data.data.data);
-        this.tableData = res.data.data.data;
-        this.pageData.totalElements = res.data.data.totalElements;
-        console.log(this.tableData);
-        console.log(this.tableData[0].sbxxId);
-        console.log(this.tableData[0].djlxId);
-        getSbDjxByType(this.tableData[0].sbxxId, this.tableData[0].djlxId).then(res => {
-          console.log(res);
-        })
-        // for(let i=0;i<this.tableData.length;i++){
-
-        // }
+        if (res.data.data == '未找到查询结果') {
+          this.tableData = [];
+        } else {
+          this.tableData = res.data.data[0];
+          this.pageData.totalElements = res.data.data[0].length;
+        }
       }).catch(err => {
-        // console.log(err)
         this.$message.error({
           message: err,
           position: 'top',
@@ -222,25 +211,24 @@ export default {
 
     //条件筛选
     onSubmit () {
-      console.log(this.formInline.time);
-      console.log(this.formInline.deviceValue);
-      console.log(this.formInline.check);
-      console.log(this.formInline.completeValue);
-
-      // this.getDjrz(
-      //   this.djrzFormat()
-      // );
-
+      // console.log(this.formInline.time);
+      // console.log(this.formInline.deviceValue);
+      // console.log(this.formInline.check);
+      // console.log(this.formInline.completeValue);
+      this.getDjrz(
+        this.djrzFormat()
+      );
     },
 
     // 提交点检
     SaveCheck () {
-      // console.log(this.multipleSelection)
+      console.log(this.multipleSelection)
       let idList = [];
       for (let i = 0; i < this.multipleSelection.length; i++) {
-        idList[i] = this.multipleSelection[i].djfaId
+        for(let j in this.multipleSelection[i].djfaIdList){
+          idList.push(this.multipleSelection[i].djfaIdList[j]);
+        }
       }
-      // console.log(idList)
 
       this.$confirm('此操作将修改点检状态为已完成，确定设备已完成点检？', '提示', {
         confirmButtonText: '确定',
@@ -249,7 +237,7 @@ export default {
       }).then(() => {
         // console.log(idList)
         commitDjfa(idList).then(res => {
-          // console.log(res.data.data)
+          console.log(res.data.data)
           this.$message.success({
             message: res.data.data,
             position: 'top',
@@ -269,7 +257,7 @@ export default {
 
     // 选择框禁用
     isDisabled (row) {
-      if (row.isFinished == '已完成')
+      if (row.finished == '已完成')
         return false;
       else
         return true;
@@ -278,13 +266,6 @@ export default {
 
     // 据点检日志请求体数整理
     djrzFormat () {
-
-      let djxmList = [];
-      for (let i = 0; i < this.formInline.check.length; i++) {
-        djxmList[i] = this.formInline.check[i][1];
-      }
-      // console.log(djxmList)
-
       if (this.formInline.time) {
         return {
           pageSize: 10,
@@ -292,7 +273,7 @@ export default {
           startTime: this.formInline.time[0],
           endTime: this.formInline.time[1],
           sbxxIdList: this.formInline.deviceValue,
-          djxmIdList: djxmList,
+          djxmIdList: this.formInline.check,
           finished: this.formInline.completeValue
         }
       }
@@ -303,7 +284,7 @@ export default {
           startTime: '',
           endTime: '',
           sbxxIdList: this.formInline.deviceValue,
-          djxmIdList: djxmList,
+          djxmIdList: this.formInline.check,
           finished: this.formInline.completeValue
         }
     },

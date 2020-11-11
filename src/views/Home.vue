@@ -28,7 +28,7 @@ export default {
     Header
   },
   created () {
-    
+
   }
 };
 </script>
@@ -44,7 +44,7 @@ body,
 .container {
   height: 100%;
 }
-.content{
+.content {
   height: 50%;
 }
 .el-header {
@@ -65,5 +65,18 @@ body,
 }
 .el-dropdown {
   float: right;
+}
+
+.demo-table-expand {
+  font-size: 0;
+}
+.demo-table-expand label {
+  width: 170px;
+  color: #99a9bf;
+}
+.demo-table-expand .el-form-item {
+  margin-right: 0;
+  margin-bottom: 0;
+  width: 50%;
 }
 </style>

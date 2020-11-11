@@ -17,10 +17,10 @@
       <i class="el-icon-warning"></i>
       <span slot="title">设备警告</span>
     </el-menu-item>
-    <el-menu-item index="diagnosis">
+    <!-- <el-menu-item index="diagnosis">
       <i class="el-icon-s-opportunity"></i>
       <span slot="title">故障诊断</span>
-    </el-menu-item>
+    </el-menu-item> -->
     <el-menu-item index="userManage">
       <i class="el-icon-s-custom"></i>
       <span slot="title">用户管理</span>

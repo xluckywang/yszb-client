@@ -9,7 +9,7 @@
       <el-form :inline="true" :model="formInline" class="demo-form-inline">
         <el-form-item>
           <el-date-picker v-model="formInline.time" type="daterange" unlink-panels range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期"
-            :picker-options="pickerOptions">
+            :picker-options="pickerOptions" value-format="yyyy-MM-dd">
           </el-date-picker>
         </el-form-item>
         <el-form-item>
@@ -18,7 +18,7 @@
           </el-select>
         </el-form-item>
         <el-form-item>
-          <el-select v-model="formInline.completeValue" style="width:150px" placeholder="请选择完成情况">
+          <el-select v-model="formInline.completeValue" style="width:150px" clearable placeholder="请选择完成情况">
             <el-option v-for="item in complete" :key="item.value" :label="item.label" :value="item.value">
             </el-option>
           </el-select>
@@ -32,21 +32,16 @@
       </el-form>
     </div>
 
-
     <!-- 列表 -->
     <div class="container">
       <el-table ref="multipleTable" :data="tableData" tooltip-effect="dark" style="width: 100%" @selection-change="handleSelectionChange">
-        <el-table-column type="selection" width="55"></el-table-column>
-        <el-table-column label="日期" width="120">
-          <template slot-scope="scope">{{ scope.row.date }}</template>
-        </el-table-column>
-        <el-table-column prop="name" label="设备名称" width="120"></el-table-column>
-        <el-table-column prop="address" label="设备编号" width="120"></el-table-column>
-        <el-table-column prop="address" label="设备类型" width="120"></el-table-column>
-        <el-table-column prop="address" label="参数阈值" width="120"></el-table-column>
-        <el-table-column prop="address" label="通知次数" width="220"></el-table-column>
-        <el-table-column prop="address" label="下次预警时间" width="120"></el-table-column>
-        <el-table-column prop="address" label="状态" show-overflow-tooltip></el-table-column>
+        <el-table-column type="selection"></el-table-column>
+        <el-table-column type="index" label="序号"></el-table-column>
+        <el-table-column prop="sbxxId" label="设备名称"></el-table-column>
+        <el-table-column prop="sbxxType" label="设备编号"></el-table-column>
+        <el-table-column prop="sbxxName" label="设备类型"></el-table-column>
+        <el-table-column prop="value" label="参数阈值"></el-table-column>
+        <el-table-column prop="isFinished" label="状态"></el-table-column>
       </el-table>
       <!-- 分页  -->
       <Pagination :pageData="pageData" @handleCurrentChange="handleCurrentChange" />
@@ -57,6 +52,8 @@
 <script>
 //组件
 import Pagination from '@/components/Pagination';
+import { getYjfaList } from '@/api/DeviceAlert/DeviceAlert';
+import { getDevList } from '@/api/DeviceManage/DeviceList';
 
 export default {
   data () {
@@ -64,7 +61,6 @@ export default {
       formInline: {//筛选表单传递数据
         time: '',
         device: '',
-        check: [],
         deviceValue: [],
         completeValue: ''
       },
@@ -97,19 +93,17 @@ export default {
       },
       //设备选项
       deviceOptions: [
-        {
-          value: '选项1',
-          label: '设备一'
-        }, {
-          value: '选项2',
-          label: '设备二'
-        }
+        // {
+        //   value: '选项1',
+        //   label: '设备一'
+        // }
       ],
       //完成情况选项
       complete: [
-        { value: '1', label: '已完成' },
-        { value: '2', label: '未完成' }
+        { value: '已解决', label: '已解决' },
+        { value: '未解决', label: '未解决' }
       ],
+      tableData:[],
       // 分页
       pageData: {
         totalElements: 400,
@@ -122,17 +116,86 @@ export default {
     Pagination
   },
   created () {
-
+    this.init();
   },
   mounted () {
 
   },
   methods: {
-// 当前页
+    init () {
+      // 设备列表
+      getDevList(
+        {
+          pageSize: 1000,
+          pageNo: 1,
+          object: ''
+        }
+      ).then(res => {
+        // console.log(this.deviceOptions[0]);
+        for (let i = 0; i < res.data.data.data.length; i++) {
+          // console.log(res.data.data.data[i].sbxxId);
+          let devItem = { value: '', label: '' };
+          devItem.value = res.data.data.data[i].sbxxId;
+          devItem.label = res.data.data.data[i].sbxxId;
+          this.deviceOptions.push(devItem);
+        }
+        // console.log(this.deviceOptions);
+      })
+      this.getYjList(
+        this.Format()
+      )
+    },
+    getYjList (obj) {
+      getYjfaList(obj).then(res => {
+        // console.log(res.data.data);
+        this.tableData = res.data.data.data;
+        this.pageData.totalElements = res.data.data.totalElements;
+      })
+    },
+    // 请求体数整理
+    Format () {
+
+      if (this.formInline.time) {
+        return {
+          pageSize: 10,
+          pageNo: this.pageData.currentPage,
+          startTime: this.formInline.time[0],
+          endTime: this.formInline.time[1],
+          sbxxIdList: this.formInline.deviceValue,
+          finished: this.formInline.completeValue
+        }
+      }
+      else
+        return {
+          pageSize: 10,
+          pageNo: this.pageData.currentPage,
+          startTime: '',
+          endTime: '',
+          sbxxIdList: this.formInline.deviceValue,
+          finished: this.formInline.completeValue
+        }
+    },
+
+    //条件筛选
+    onSubmit () {
+      // console.log(this.formInline.time);
+      // console.log(this.formInline.deviceValue);
+      // console.log(this.formInline.completeValue);
+
+      this.getYjList(this.Format());
+
+    },
+    // 当前页
     handleCurrentChange (val) {
       // console.log(val);
       this.pageData.currentPage = val;
+      // console.log(this.Format())
+      this.getYjList(this.Format());
     },
+
+    handleSelectionChange (val) {
+      this.multipleSelection = val;
+    }
   }
 };
 </script>
