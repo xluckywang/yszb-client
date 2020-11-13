@@ -289,14 +289,6 @@ export default {
         }
     },
 
-    // getDjxm (sbId, djzq) {
-    //   getSbDjxByType(sbId, djzq).then(res => {
-    //     console.log(res);
-    //   }).catch(err => {
-    //     console.log(err)
-    //   })
-    // },
-
     // 分页-->当前页数
     handleCurrentChange (val) {
       // console.log(val);

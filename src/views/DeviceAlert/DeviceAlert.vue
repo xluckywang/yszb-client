@@ -27,7 +27,7 @@
           <el-button type="primary" @click="onSubmit()">筛选</el-button>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary">排除警告</el-button>
+          <el-button type="primary" @click="handleFinished()">排除警告</el-button>
         </el-form-item>
       </el-form>
     </div>
@@ -35,13 +35,15 @@
     <!-- 列表 -->
     <div class="container">
       <el-table ref="multipleTable" :data="tableData" tooltip-effect="dark" style="width: 100%" @selection-change="handleSelectionChange">
-        <el-table-column type="selection"></el-table-column>
+        <el-table-column type="selection" :selectable="isDisabled"></el-table-column>
         <el-table-column type="index" label="序号"></el-table-column>
         <el-table-column prop="sbxxId" label="设备名称"></el-table-column>
         <el-table-column prop="sbxxType" label="设备编号"></el-table-column>
         <el-table-column prop="sbxxName" label="设备类型"></el-table-column>
+        <el-table-column prop="paramter" label="参数"></el-table-column>
         <el-table-column prop="value" label="参数阈值"></el-table-column>
         <el-table-column prop="isFinished" label="状态"></el-table-column>
+        <el-table-column prop="finishedTime" label="完成时间"></el-table-column>
       </el-table>
       <!-- 分页  -->
       <Pagination :pageData="pageData" @handleCurrentChange="handleCurrentChange" />
@@ -52,7 +54,7 @@
 <script>
 //组件
 import Pagination from '@/components/Pagination';
-import { getYjfaList } from '@/api/DeviceAlert/DeviceAlert';
+import { getYjfaList, commitYjfa } from '@/api/DeviceAlert/DeviceAlert';
 import { getDevList } from '@/api/DeviceManage/DeviceList';
 
 export default {
@@ -103,7 +105,7 @@ export default {
         { value: '已解决', label: '已解决' },
         { value: '未解决', label: '未解决' }
       ],
-      tableData:[],
+      tableData: [],
       // 分页
       pageData: {
         totalElements: 400,
@@ -185,6 +187,32 @@ export default {
       this.getYjList(this.Format());
 
     },
+    // 排除警告
+    handleFinished () {
+      // console.log(this.multipleSelection);
+      let IdList = [];
+      for (let i = 0, len = this.multipleSelection.length; i < len; i++) {
+        IdList.push(this.multipleSelection[i].yjfaId);
+      }
+      // console.log(IdList);
+      commitYjfa(IdList).then(res => {
+        this.$message.success({
+          message: res.data.data,
+          position: 'top',
+          time: 2000
+        })
+      })
+      this.getYjList(this.Format());
+
+    },
+    // 选择框禁用
+    isDisabled (row) {
+      if (row.isFinished == '已解决')
+        return false;
+      else
+        return true;
+    },
+
     // 当前页
     handleCurrentChange (val) {
       // console.log(val);
