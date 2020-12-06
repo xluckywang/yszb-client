@@ -25,10 +25,10 @@
       <i class="el-icon-s-custom"></i>
       <span slot="title">用户管理</span>
     </el-menu-item>
-    <el-menu-item index="model">
+    <!-- <el-menu-item index="model">
       <i class="el-icon-s-marketing"></i>
       <span slot="title">查看模型</span>
-    </el-menu-item>
+    </el-menu-item> -->
   </el-menu>
 </template>
 <script>
