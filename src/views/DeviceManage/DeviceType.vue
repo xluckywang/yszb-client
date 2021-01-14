@@ -8,6 +8,16 @@
       <el-button type="primary" @click="$router.push({name:'checkManage'})">管理点检项目</el-button>
     </div>
     <el-row>
+      <el-col :span="5">
+        <router-link :to="{name:'allDevice'}">
+          <el-card>
+            <img :src="TypeList[0].pictureUrl">
+            <div>
+              <h3>全部设备</h3>
+            </div>
+          </el-card>
+        </router-link>
+      </el-col>
       <el-col :span="5" v-for="item in TypeList" :key="item.sblxId">
         <router-link :to="{name:'deviceList',params:{id:item.sblxId}}">
           <el-card>

@@ -46,6 +46,7 @@
 <script>
 import { login } from '@/api/login/login';
 import { getUserInfo } from '@/api/Overview/overview';
+import { auth } from '@/api/rootcloud/rootcloud';
 
 export default {
   name: '',
@@ -87,6 +88,13 @@ export default {
               if (res.data.data) {
                 localStorage.setItem('access_token', res.data.data); // 测试解决上线第一次请求不带token问题
                 localStorage.setItem('username', this.form.username);
+                auth({
+                  clientId:'60d3fd78',
+                  secret:'3ba110e38e92fb5181eef7cacb88d104'
+                }).then(res=>{
+                  localStorage.setItem('root_token',res.data.data);
+                })
+
                 getUserInfo(this.form.username).then(res => {
                   // console.log(res.data.data);
                   localStorage.setItem('userrole', res.data.data.permissionType);

@@ -60,6 +60,11 @@ const routes = [
         component: () => import("../views/DeviceManage/DeviceList.vue"),
       },
       {
+        path: "allDevice",
+        name: "allDevice",
+        component: () => import("../views/DeviceManage/AllDevice.vue"),
+      },
+      {
         path: "checkSet/:id",
         name: "checkSet",
         component: () => import("../views/DeviceManage/CheckSet.vue"),
